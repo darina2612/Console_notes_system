@@ -3,6 +3,7 @@ import console_application
 import extention
 import menu
 import os
+from time import strftime
 
 
 class TestCreatingNote(unittest.TestCase):
@@ -71,6 +72,30 @@ class TestSubjectText(unittest.TestCase):
         subject.add(simulate_text)
         self.assertEqual(subject.text, "Some text here.")
 
+
+class TestTODOStartDate(unittest.TestCase):
+
+    """Tests if TODO's start date is accurate"""
+
+    def test_start_date(self):
+        todo = console_application.TODO()
+        self.assertEqual(todo.start_date, strftime("%Y-%m-%d_%H:%M:%S")[:10])
+
+
+class TestTODOFinnished(unittest.TestCase):
+
+    def test_not_finnished(self):
+        todo = console_application.TODO()
+        self.assertTrue(not todo.is_finished)
+
+
+class TestTODONoFinnishDate(unittest.TestCase):
+
+    """Test no string for finnish date"""
+
+    def test_no_finnish_date(self):
+        todo = console_application.TODO()
+        self.assertEqual(todo.finish_date, '')
 
 if __name__ == '__main__':
     unittest.main()
