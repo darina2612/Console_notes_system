@@ -3,7 +3,8 @@ import os
 
 #EXISTING_ORGANIZER_ITEMS = {"Notes" : [], "TODOs" : []}
 
-FRAME = "\n" + ''.join(['=']*80) + "\n" + ''.join(['=']*80) + "\n"
+FRAME = "\n" + ''.join(['='] * 80) + "\n" + ''.join(['='] * 80) + "\n"
+
 
 class OrganizerItem:
 
@@ -36,16 +37,16 @@ class OrganizerItem:
     def write_tags(self):
         return "TAGS: " + (", ".join(self.tags) + "\n")
 
-    def add_or_remove_tags(self):
+    def add_or_remove_tags(self, input_function):
         print("\nADD\REMOVE TAGS TO THAT ITEM:\n" +
               "FOR ADDING PRESS \'A\' OR \'a\', FOR REMOVEING TAGS " +
               "PRESS \'R\' OR \'r\'\n"
               "(to exit adding/removeing tags, enter '.'):\n")
-        users_choice = input()
+        users_choice = input_function()
         if users_choice == 'A' or users_choice == 'a':
             print("\nADD TAGS:\n")
             while True:
-                tag = input()
+                tag = input_function()
                 if tag == '.':
                     break
                 self.tags.append(tag)
@@ -61,7 +62,7 @@ class OrganizerItem:
                       "\n")
                 number_in_order = number_in_order + 1
             while True:
-                possition_to_remove_at = input()
+                possition_to_remove_at = input_function()
                 if possition_to_remove_at == '.':
                     break
                 items_to_delete.append(
@@ -69,15 +70,15 @@ class OrganizerItem:
             for item in items_to_delete:
                 self.tags.remove(item)
 
-    def add_tags_to_content(self):
-        OrganizerItem.add_or_remove_tags(self)
+    def add_tags_to_content(self, input_function):
+        OrganizerItem.add_or_remove_tags(self, input_function)
         self.write_content_in_file()
 
-  	
+
 class Note(OrganizerItem):
 
     def __init__(self):
-        super().__init__()
+        OrganizerItem.__init__(self)
         self.text = ''
         self.write_content_in_file()
 
@@ -87,19 +88,19 @@ class Note(OrganizerItem):
         self.content.close()
         self.content = open(self.name, 'w')
         self.content.write("NOTE: " + self.text + "\n" +
-            OrganizerItem.write_tags(self))
+                           OrganizerItem.write_tags(self))
         self.content.close()
 
-    def add_or_remove_tags(self):
-        self.add_tags_to_content()
+    def add_or_remove_tags(self, input_function):
+        self.add_tags_to_content(input_function)
 
-    def add(self):
+    def add(self, input_function):
         print("\nENTER YOUR NOTE:\n")
-        self.text = input()
+        self.text = input_function()
         print("\nFOR ADDING TAGS, PRESS \'t\' or  \'T\':\n")
-        users_choice = input()
+        users_choice = input_function()
         if(users_choice == 't' or users_choice == 'T'):
-            self.add_or_remove_tags()
+            self.add_or_remove_tags(input_function)
         self.write_content_in_file()
 
     def edit(self):
@@ -108,12 +109,12 @@ class Note(OrganizerItem):
         print(
             "\nTO CHANGE YOUR NOTE, PRESS \'1\';" +
             "\nTO CHANGE TAGS, PRESS \'2\'.\n")
-        users_choice = input()
+        users_choice = input_function()
         if users_choice == '1':
             print("\nENTER EDITED TEXT HERE:\n")
-            self.text = input()
+            self.text = input_function()
         if users_choice == '2':
-            self.add_or_remove_tags()
+            self.add_or_remove_tags(input_function)
         self.write_content_in_file()
 
 
@@ -121,7 +122,7 @@ class TODO(OrganizerItem):
     #finish_date - add
 
     def __init__(self):
-        super().__init__()
+        OrganizerItem.__init__(self)
         self.text = ''
         self.start_date = self.name[:10]
         self.is_finished = False
@@ -138,38 +139,38 @@ class TODO(OrganizerItem):
             finished = "YES"
         self.content.write("TO DO: " + self.text + "\nSTARTED ON: " +
                            self.start_date + "\nFINISHED: " + finished +
-                           "\nFINISHED ON: " + "\n" +
+                           "\nFINISHED ON: " + self.finish_date + "\n" +
                            OrganizerItem.write_tags(self) + "\n")
         self.content.close()
 
-    def add_tags(self):
-        self.add_tags_to_content()
+    def add_tags(self, input_function):
+        self.add_tags_to_content(input_function)
 
-    def add(self):
+    def add(self, input_function):
         print("\nWHAT DO YOU HAVE TO DO: \n")
-        self.text = input()
+        self.text = input_function()
         print("\nFOR ADDING TAGS, PRESS \'t\' or  \'T\':\n")
-        users_choice = input()
+        users_choice = input_function()
         if users_choice == 't' or users_choice == 'T':
-            self.add_or_remove_tags()
+            self.add_or_remove_tags(input_function)
         self.write_content_in_file()
 
-    def edit(self):
+    def edit(self, input_function):
         print("TODO NOW IS:\n")
         self.perview()
         print(
             "\nTO CHANGE WHAT YOU HAVE TO DO, PRESS \'1\';" +
             "\nTO MARK/UNMARK AS FINISHED, PRESS \'2\'\n" +
             "\n TO CHANGE TAGS, PRESS \'3\'.\n")
-        users_choice = input()
+        users_choice = input_function()
         if users_choice == '1':
             print ("ENTER YOUR NEW ASSIGNMENT:\n")
-            self.text = input()
+            self.text = input_function()
         if users_choice == '2':
             print(
                 "\nPRESS \'Y\'/\'y\' TO SET AS FINNISHED AND \'N\'/\'n\'" +
                 " TO SET AS NOT FINNISHED:\n")
-            finished = input()
+            finished = input_function()
             if finished == 'Y' or finished == 'y':
                 self.is_finished = True
                 self.finish_date = strftime("%Y-%m-%d_%H:%M:%S")[:10]
@@ -177,5 +178,5 @@ class TODO(OrganizerItem):
                 self.finished = False
                 self.finish_date = ''
         if users_choice == '3':
-            self.add_or_remove_tags()
+            self.add_or_remove_tags(input_function)
         self.write_content_in_file()

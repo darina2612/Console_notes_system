@@ -1,13 +1,10 @@
 from console_application import *
 from extention import *
-import pickle
 
 
-#with open("current_items.pickle", 'rb', pickle.HIGHEST_PROTOCOL) as current_items:
-#    ITEMS = pickle.load(current_items)
+ITEMS = {"Note": [], "TODO": [], "Subject": []}
+TYPES = {"Note": Note, "TODO": TODO, "Subject": Subject}
 
-ITEMS = {"Note" : [], "TODO" : [], "Subject" : []}
-TYPES = {"Note" : Note, "TODO" : TODO, "Subject" : Subject}
 
 def items_listed():
     items_listed = []
@@ -15,31 +12,39 @@ def items_listed():
         items_listed.extend(ITEMS[key])
     return items_listed
 
+
 def select(items):
     print("\nSELECT NUMBER:\n")
     for index in range(0, len(items)):
-        print (str(index + 1) + str(items[index]) + '\n')
+        print ("((" + str(index + 1) + "))" + str(items[index]) + '\n')
     users_choice = input()
+    if not users_choice.isdigit():
+        return "fail"
     return items[int(users_choice) - 1]
+
 
 def print_types_names_for_selection():
     for organizer_item_type in TYPES.keys():
         print("\nFOR " + organizer_item_type + " TYPE \'" +
-            organizer_item_type + '\'')
+              organizer_item_type + '\'')
+
 
 def add_item():
     print_types_names_for_selection()
     item_type = input()
     if not item_type in TYPES.keys():
         print ("\n!!!NO SUCH TYPE OF OF ITEM!!!\n")
+        return "fail"
     item = TYPES[item_type]()
     ITEMS[item_type].append(item)
-    item.add()
+    item.add(input)
     print(item)
     return item
 
+
 def search_by_type(item_type):
     return ITEMS[item_type]
+
 
 def search_by_word(items, word):
     items_found = []
@@ -48,12 +53,14 @@ def search_by_word(items, word):
             items_found.append(item)
     return items_found
 
-def serch_by_start_date(items, date):
+
+def serach_by_start_date(items, date):
     items_found = []
     for item in items:
         if item.name[:10] == date:
             items_found.append(item)
     return items_found
+
 
 def search_by_tag(items, tag):
     items_found = []
@@ -62,14 +69,16 @@ def search_by_tag(items, tag):
             items_found.append(item)
     return items_found
 
+
 def print_list_of_items(items):
     for item in items_listed():
         print(item)
 
+
 def searching():
     selection = items_listed()
     print("SEARCH:\n")
-    print_list_of_items(selection)
+    # print_list_of_items(selection)
     print("TYPE THE TYPE OF ITEM YOU WANT TO SEARCH:\n")
     print_types_names_for_selection()
     users_choice = input()
@@ -80,7 +89,7 @@ def searching():
     if users_choice == 'y':
         print("TYPE DATE IN \'YYYY-MM-DD\' FORMAT:\n")
         date = input()
-        selection = serch_by_start_date(selection, date)
+        selection = search_by_start_date(selection, date)
     print("SELECT \'y\' TO SEARCH WORD:\n")
     users_choice = input()
     if users_choice == 'y':
@@ -93,29 +102,52 @@ def searching():
         selection = search_by_tag(selection, tag)
     print("FOUND :\n")
     print_list_of_items(selection)
-    print("IF YOU WANT TO EDIT ITEM, SELECT \'e\' OR \'E\';\n" +
-        "IF YOU WANT TO PERVIEW IT, SELECT \'p\' OR \'P\'")
-    users_choice = input()
-    if users_choice == 'e' or users_choice == 'E':
-        item_to_edit = select(selection)
-        item_to_edit.edit()
-    if users_choice == 'p' or users_choice == 'P':
-        item_to_perview = select(selection)
-        item_to_perview.perview()
+    while True:
+        print("IF YOU WANT TO EDIT ITEM, SELECT \'e\' OR \'E\';\n" +
+              "IF YOU WANT TO PERVIEW IT, SELECT \'p\' OR \'P\'" +
+              "TO DELETE ITEM, SELECT \'D\' OR \'d\'"
+              "TO CONTINUE, PRESS \'.\'\n")
+        users_choice = input()
+        if users_choice == '.':
+            break
+        if users_choice == 'e' or users_choice == 'E':
+            item_to_edit = select(selection)
+            if isinstance(item_to_edit, str):
+                continue
+            item_to_edit.edit(input)
+        if users_choice == 'p' or users_choice == 'P':
+            item_to_perview = select(selection)
+            if isinstance(item_to_perview, str):
+                continue
+            item_to_perview.perview()
+        if users_choice in ['D', 'd']:
+            item_to_delete = select(selection)
+            if isinstance(item_to_delete, str):
+                continue
+            item_to_delete.delete()
+            ITEMS[str(item_to_delete.__class__.__name__)].remove(
+                item_to_delete)
+
 
 def menu():
     print(FRAME + "WELCOME!\n")
     while True:
         print("FOR ADDING NEW ITEM, SELECT \'1\';\n" +
-            "FOR SEARCHING, SELECT \'2\';\n"+
-            "FOR EXIT, SELECT \'E\' OR \'e\'.\n")
+              "FOR SEARCHING, SELECT \'2\';\n" +
+              "FOR EXIT, SELECT \'E\' OR \'e\';\n")
         users_selection = input()
         if(users_selection == '1'):
             item = add_item()
-            print("TO EDIT YOUR ITEM, SELECT \'C\' OR \'c\'\n")
+            if isinstance(item, str):
+                continue
+            print("TO EDIT YOUR ITEM, SELECT \'C\' OR \'c\'\n" +
+                  "TO DELETE IT, SELECT \'D\' OR \'d\'")
             users_choice = input()
             if users_choice == 'C' or users_choice == 'c':
-                item.edit()
+                item.edit(input)
+            if users_choice == 'D' or users_choice == 'd':
+                item.remove(input)
+                ITEMS[str(item.__class__.__name__)].remove(item)
         if users_selection == '2':
             searching()
         if(users_selection == 'E' or users_selection == 'e'):
