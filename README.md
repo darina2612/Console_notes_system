@@ -1,4 +1,4 @@
-#КОНЗОЛНА СИСТЕМА ЗА БЕЛЕЖКИ
+# КОНЗОЛНА СИСТЕМА ЗА БЕЛЕЖКИ
 
 
 
@@ -35,7 +35,7 @@
 
 
 
-#CONSOLE NOTES SYSTEM
+# CONSOLE NOTES SYSTEM
 
 
 
